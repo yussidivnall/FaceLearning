@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url,include
+from django.conf import settings
 from django.contrib import admin
 from .views import start_page
 urlpatterns = [
@@ -22,7 +23,5 @@ urlpatterns = [
     url(r'^harvest/',include('HarvestFaces.urls',namespace='harvest')),
 ]
 
-#import settings;
 #if settings.DEBUG:
-#    urlpatterns+=url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
-#            'document_root': '/home/volcan/Development/OpenCV/FaceLearning/media','show_indexes':True}),
+#    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
