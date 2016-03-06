@@ -10,5 +10,5 @@ class Person(models.Model):
 class Face(models.Model):
     image=models.ImageField();
     person=models.ForeignKey(Person,null=True); 
-    label=models.CharField(null=True);
+    label=models.CharField(null=True,max_length=256);
 

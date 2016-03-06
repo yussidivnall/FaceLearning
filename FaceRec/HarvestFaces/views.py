@@ -12,6 +12,8 @@ from django.views.generic.edit import FormView
 from django.views.generic.base import RedirectView
 from uuid import uuid4;
 
+from .harvest import Faces
+
 #import imdb_utils
 #import face_utils
 def start_page(request):
@@ -39,6 +41,7 @@ class UploadImagesView(FormView):
 class HarvestTrainingView(FormView):
     template_name='HarvestFaces/train.html';
     def get(self,request):
+        faces=Faces();
         sid=request.session['harvest_id'];
         print(sid);
         return HttpResponse("Training...");
