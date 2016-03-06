@@ -5,7 +5,8 @@ from .views import *
 urlpatterns = [
     url(r'^$',start_page),
     url(r'^upload$',UploadImagesView.as_view()),
-    url(r'^uploading$',uploading_images_page),
+    url(r'^train$',HarvestTrainingView.as_view()),
+    
 ]
 #if settings.DEBUG:
 #    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
