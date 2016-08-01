@@ -14,9 +14,8 @@ from django.views.generic.base import RedirectView
 import uuid
 
 from .harvest import Faces
-
-#import imdb_utils
-#import face_utils
+import pdb;
+from .extract_faces import extract_faces
 def start_page(request):
     return render_to_response('HarvestFaces/start_page.html')
 # Create your views here.
@@ -38,12 +37,14 @@ class UploadImagesView(FormView):
         self.request.session['harvest_id']=session_id;
         return session_id;
 
+
     def form_valid(self,form):
+        #pdb.set_trace()
         session_id=self.harvest_id();
         print("Session ID: "+session_id+"\n");
         for img in form.cleaned_data['images']:
-            tags=form.cleaned_data['tags'];
-            RawImage.objects.create(image=img,tags=tags,harvest_id=session_id);
+            # Resize image, set as jpeg and store
+            RawImage.objects.create(image=img,harvest_id=session_id);
             
         return super(UploadImagesView,self).form_valid(form)
 
@@ -54,15 +55,15 @@ class UploadImagesView(FormView):
 
 class HarvestTrainingView(FormView):
     template_name='HarvestFaces/train.html';
+    classifier="classifiers/haarcascade_frontalface_default.xml"
     def get(self,request):
         sid=request.session['harvest_id'];
-        print("SID %s"%sid)
-        images=RawImage(harvest_id=sid);
-        print(type(images))
-        faces=Faces();
-        classifiers=faces.get_classifiers();
-        t_args=[];
-        print(type(images))
-        print("Harvest ID"+images.harvest_id)
+        images=RawImage.objects.filter(harvest_id=sid)
+        
+        for img in images:
+            #squares=extract_faces.extract_faces().get_squares(self.classifier,str(img))
+            squares=extract_faces.get_squares(str(img),self.classifier)
+            print(squares)
+            pdb.set_trace()
         return render(request,'HarvestFaces/train.html');
     
