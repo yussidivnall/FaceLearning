@@ -1,10 +1,66 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Training Images</h2>
+{% load staticfiles %}
+
+
+
+
+{% if images %}
+    <!-- Generates the <script> to draw the image -->
+    <script>
+        var colors=["#FF0000","#00FF00","#000088","#FFFF00","#AABB00","#00CC00","#00CCDD","#DDCC00"]
+        function draw_images(){
+            {%for img in images%}
+                var c = document.getElementById("canv-{{ forloop.counter }}");
+                var ctx = c.getContext("2d");
+                var img = document.getElementById("image-{{ forloop.counter }}");
+                ctx.drawImage(img,0,0);
+            {%endfor%}
+        }
+        function draw_squares(){
+            {%for img in images%}
+                var c = document.getElementById("canv-{{ forloop.counter }}");
+                var ctx = c.getContext("2d");
+                {% if img.squares|length >= 1 %}
+                    {% for square in img.squares %}
+                        ctx.strokeStyle=colors[{{ forloop.counter }}];
+                        ctx.rect({{square.0}} , {{square.1}}, {{square.2}}, {{square.3}});
+                        ctx.stroke();
+                    {%endfor%}
+                {%else %}
+                    ctx.font = "30px Arial";
+                    ctx.fillStyle="#FF0000";
+                    ctx.fillText("No Faces",10,50);
+                {%endif%}
+            {%endfor%}
+           
+        }
+
+        function start(){
+            draw_images()
+            draw_squares()
+        }
+        window.onload = function(){start();};
+    </script>
+    <!--  -->
+    {% for img in images %}
+        <img src="/media/{{ img.src }}" id="image-{{ forloop.counter }}" hidden="true" > 
+        {{ forloop.counter }}
+        <canvas id="canv-{{ forloop.counter }}" width="300" height="300"
+        style="border:1px solid #d3d3d3;">
+        Your browser does not support the HTML5 canvas tag.</canvas>
+    {% endfor %}
+{% else %}
+    <h1> No Images </h1>
+{% endif %}
+
+
+<!--
 <form action="train" enctype="multipart/form-data"  method="post">{% csrf_token %}
-{{ form.as_p }}
+{{ form.as_p }} 
 <input type="submit" value="train">
 </form>
-
+-->
 {% endblock %}
 
