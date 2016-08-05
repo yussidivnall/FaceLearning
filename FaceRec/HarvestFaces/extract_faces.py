@@ -3,6 +3,7 @@ import cv2
 from cv2 import *
 import pdb
 import sys,os
+from django.conf import settings
 
 class extract_faces(object):
 
@@ -10,8 +11,12 @@ class extract_faces(object):
     # returns [ [x y w h],[....] ]  #squares of positions of faces in image
     @staticmethod
     def get_squares(image_path,classifier_path):
-        print(image_path)
-        image=cv2.imread(image_path,cv2.IMREAD_GRAYSCALE)
+        print("Image path:"+str(image_path) )
+        #pdb.set_trace()
+        root=settings.MEDIA_ROOT+"/"
+        #image_path=image_path
+        image=cv2.imread(root+image_path,cv2.IMREAD_GRAYSCALE)
+        
         if image is None:
             print("No image loaded : "+image_path)
             return None

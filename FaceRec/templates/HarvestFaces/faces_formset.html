@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2> training </h2>
+{% if images %}
+   {% for img in images %}
+        <img src="/media/{{ img.src }}" id="image-{{ forloop.counter }}" > 
+        {% if img.faces %}
+            {% for form,square in img.faces %}
+                <br>lala<br>
+                <form>
+                {{form}}
+                </form>
+                {{square}}
+            {% endfor %}
+        {% else %}
+            <h3> no faces</h3>
+        {%endif%}
+    {%endfor%} 
+{% else %}
+    <h3>No Images</h3>
+{% endif %}
+
+{% endblock %}
