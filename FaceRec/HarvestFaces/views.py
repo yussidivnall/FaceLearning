@@ -60,7 +60,7 @@ class UploadImagesView(FormView):
 
 
 class FaceLabelingView(FormSetView):
-    template_name = 'HarvestFaces/faces_formset.html'
+    template_name = 'HarvestFaces/train.html'
     classifier="classifiers/haarcascade_frontalface_default.xml"
     form_class = FaceForm
     success_url = 'success/'
@@ -88,7 +88,7 @@ class FaceLabelingView(FormSetView):
                     initial={'x':sqr[0],'y':sqr[1],'width':sqr[2],'height':sqr[3],'dataset':self.default_dataset}
                 )
                 forms.append(form);
-                pdb.set_trace()
+                #pdb.set_trace()
             faces=zip(forms,squares)
             entry={'src':str(img) , 'faces':faces}
             context['images'].append(entry)

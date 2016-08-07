@@ -1,28 +1,5 @@
-{% extends "base.html" %}
-{% block content %}
-
-<h2> training </h2>
-----------
+{% extends "train.html %}
 {% block js %}
-{%endblock%}
-----------
-{% if images %}
-   {% for img in images %}
-        <img src="/media/{{ img.src }}" id="image-{{ forloop.counter }}" hidden="true" > 
-        <canvas id="canv-{{forloop.counter}}" width="300" height=300>
-            No HTML5 canvas.
-        </canvas>
-        {% if img.faces %}
-            {% for form,square in img.faces %}
-                <form>
-                {{form}}
-                </form>
-            {% endfor %}
-        {% else %}
-            <h3> no faces</h3>
-        {%endif%}
-    {%endfor%} 
-
     <script>
         window.onload = function(){draw();}
         function draw(){
@@ -45,9 +22,4 @@
            {%endfor%} 
         }
     </script>
-
-{% else %}
-    <h3>No Images</h3>
-{% endif %}
-
-{% endblock %}
+{%endblock %}
