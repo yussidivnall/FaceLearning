@@ -1,30 +1,16 @@
 {% extends "base.html" %}
-{% block content %}
 
-<h2> training </h2>
-----------
 {% block js %}
-{%endblock%}
-----------
-{% if images %}
-   {% for img in images %}
-        <img src="/media/{{ img.src }}" id="image-{{ forloop.counter }}" hidden="true" > 
-        <canvas id="canv-{{forloop.counter}}" width="300" height=300>
-            No HTML5 canvas.
-        </canvas>
-        {% if img.faces %}
-            {% for form,square in img.faces %}
-                <form>
-                {{form}}
-                </form>
-            {% endfor %}
-        {% else %}
-            <h3> no faces</h3>
-        {%endif%}
-    {%endfor%} 
-
     <script>
         window.onload = function(){draw();}
+        var colors=["#FF0000","#00FF00","#000008","#FFFF00","#AABB00","#00CC00","#00CCDD","#DDCC00"]
+
+        function color_form(img_index,face_index){
+            var elem_id="training_image_"+img_index+"_face_"+face_index;
+            elem=document.getElementById(elem_id);
+            elem.style.borderColor = colors[face_index-1];
+            //.style.borderColor = "#005500";
+        }
         function draw(){
            {% for img in images %}
                 
@@ -32,19 +18,50 @@
                 var ctx = c.getContext("2d");
                 var img = document.getElementById("image-{{ forloop.counter }}");
                 ctx.drawImage(img,0,0);
-                {% if img.faces|length == 0 %}
+                {% if not img.squares %}
                     ctx.font = "30px Arial";
                     ctx.fillStyle="#FF0000";
                     ctx.fillText("No Faces",10,50);
                 {% endif %}
-                {% for form,square in img.faces %}
-                    ctx.strokeStyle="#FF0000";
-                    ctx.rect({{square.0}} , {{square.1}}, {{square.2}}, {{square.3}});
-                    ctx.stroke();
+                {% for square in img.squares %}
+                    ctx.strokeStyle=colors[{{forloop.counter0}}];
+                    ctx.strokeRect({{square|join:","}});
+                    color_form({{forloop.parentloop.counter}},{{forloop.counter}})
                 {%endfor%} 
+                    ctx.stroke();
            {%endfor%} 
         }
-    </script>
+    </script> 
+{%endblock%}
+
+
+{% block content %}
+
+<h2> training </h2>
+{% if images %}
+   <div id="training_list">
+   {% for img in images %}
+        <div id="training_image_{{forloop.counter}}">
+        <img src="/media/{{ img.src }}" id="image-{{ forloop.counter }}" hidden="true" > 
+        <canvas id="canv-{{forloop.counter}}" width="300" height=300>
+            No HTML5 canvas.
+        </canvas>
+        {% if img.forms|length <= 0 %}
+            <h3> no faces</h3>
+        {% endif %}
+        {% for form in img.forms %}
+            <div id="training_image_{{forloop.parentloop.counter}}_face_{{forloop.counter}}" \
+                style="border-style: solid;border-width: 1px;" \
+                >
+            <form>
+            {{form}}
+            </form>
+            </div>
+        {% endfor %}
+        </div>
+    {%endfor%} 
+    </div>
+
 
 {% else %}
     <h3>No Images</h3>
