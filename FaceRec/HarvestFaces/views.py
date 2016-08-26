@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from extra_views import FormSetView
-
+import json
+from django.http import JsonResponse
 
 from django.http import HttpResponse,Http404,HttpResponseRedirect
 from django.shortcuts import render_to_response,redirect
@@ -8,6 +9,7 @@ from django.shortcuts import render_to_response,redirect
 from django.template import RequestContext
 from django import forms
 from .forms import *
+from django.forms import formset_factory
 from .models import *
 from django.views.generic.edit import FormView
 from django.views.generic.base import RedirectView
@@ -57,29 +59,45 @@ class UploadImagesView(FormView):
 
 
 
-
-
-class FaceLabelingView(FormSetView):
+class FaceLabelingView(FormView):
+    # The training view at train/ 
+    # take all images from this training session ['harvest_id']
+    # run through face cascade classifier and find faces
+    # create a form for each detected face
+    # 
     template_name = 'HarvestFaces/train.html'
     classifier="classifiers/haarcascade_frontalface_default.xml"
     form_class = FaceForm
     success_url = 'success/'
     default_dataset='people/'
 
-    def get_initial(self):
-        # return whatever you'd normally use as the initial data for your formset.
-      return data
+    def form_valid(self,form):
+        print("Form Valid");
+        pdb.set_trace();
 
-    def formset_valid(self, formset):
-        # do stuff
-        return super(MyFormSetView, self).formset_valid(formset)
 
+    def post(self, request, *args, **kwargs):
+        # Handle post, return json responses for fail/success
+        response={}
+        sid=request.session['harvest_id'];
+        img_idx=int(kwargs['img_idx']);
+        images=RawImage.objects.filter(harvest_id=sid)[img_idx-1]
+        form = FaceForm(request.POST);
+        if form.is_valid():
+            print("Form Valid");
+            pdb.set_trace();
+        else:
+            print("Form Invalid");
+            response['result']='error'
+            response['message']='something wrong'
+            pdb.set_trace();
+            return JsonResponse(response);
     
-    def get(self,request):
+    def get(self,request,img_idx=-1, frm_idx=-1):
         sid=request.session['harvest_id'];
         images=RawImage.objects.filter(harvest_id=sid)
         context={'images':[]}
-        
+        print( str(img_idx)+"_"+str(frm_idx) );
         for img in images:
             forms=[]
             squares=extract_faces.get_squares(str(img),self.classifier)
@@ -88,27 +106,7 @@ class FaceLabelingView(FormSetView):
                     initial={'x':sqr[0],'y':sqr[1],'width':sqr[2],'height':sqr[3],'dataset':self.default_dataset}
                 )
                 forms.append(form);
-                #pdb.set_trace()
-            faces=zip(forms,squares)
-            entry={'src':str(img) , 'faces':faces}
+            entry={'src':str(img) , 'forms':forms, 'squares':squares}
             context['images'].append(entry)
+            #pdb.set_trace()
         return render(request,self.template_name,context);
-
-
-class HarvestTrainingView(FormView):
-    template_name='HarvestFaces/train.html';
-    classifier="classifiers/haarcascade_frontalface_default.xml"
-
-    def get(self,request):
-        sid=request.session['harvest_id'];
-        images=RawImage.objects.filter(harvest_id=sid)
-        context={'images':[]}
-        for img in images:
-            #squares=extract_faces.extract_faces().get_squares(self.classifier,str(img))
-            squares=extract_faces.get_squares(str(img),self.classifier)
-            print("Squares: \n"+str(squares) )
-            entry={'src':str(img) , 'squares':squares}
-            context['images'].append(entry)
-        #pdb.set_trace()
-        return render(request,self.template_name,context);
-    

@@ -1,8 +1,15 @@
 {% extends "base.html" %}
 
 {% block js %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script>
-        window.onload = function(){draw();}
+        //$(document).ready(function(){
+        //    draw();
+        //});
+        window.onload = function(){
+            draw();
+            gen_form_actions();
+        }
         var colors=["#FF0000","#00FF00","#000008","#FFFF00","#AABB00","#00CC00","#00CCDD","#DDCC00"]
 
         function color_form(img_index,face_index){
@@ -31,6 +38,47 @@
                     ctx.stroke();
            {%endfor%} 
         }
+
+        function set_action(img_idx,frm_idx){
+            frm_id="#training_sample_form_"+img_idx+"_"+frm_idx;
+            console.log("Set Action");
+            frm = $(frm_id);
+
+            frm.submit(function(){
+                $.ajax({
+                    type: "POST",
+                    url: "/harvest/train/"+img_idx+"/"+frm_idx,
+                    data: frm.serialize(),
+                    success: function(json){
+                        console.log("Success");
+                    },
+                    error:  function(json){
+                        console.log("Fail");
+                        console.log(json);
+                    }
+                });
+            });
+
+            {% comment %}
+            $(frm_id).submit(function(e){
+                $.post("/harvest/train/"+img_idx+"/"+frm_idx,$(this).serialize(), function(data){
+                    $('.message').html(data.message);
+                    alert("Done");
+                    $(frm_id).hide();
+                });
+                e.preventDefault();
+            });
+            {% endcomment %}
+        }
+        function gen_form_actions(){
+           {% for img in images %}
+               img_index={{forloop.counter}}
+               {% for frm in img.forms %}
+                    frm_index={{forloop.counter}}
+                    set_action(img_index,frm_index);
+               {%endfor%} 
+           {%endfor%} 
+        }
     </script> 
 {%endblock%}
 
@@ -53,8 +101,9 @@
             <div id="training_image_{{forloop.parentloop.counter}}_face_{{forloop.counter}}" \
                 style="border-style: solid;border-width: 1px;" \
                 >
-            <form>
-            {{form}}
+            <form id="training_sample_form_{{forloop.parentloop.counter}}_{{forloop.counter}}" >{% csrf_token %}
+            {{form}} 
+            <input type="submit" />
             </form>
             </div>
         {% endfor %}

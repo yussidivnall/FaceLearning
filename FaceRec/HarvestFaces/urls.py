@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^$',start_page),
     url(r'^upload$',UploadImagesView.as_view()),
     url(r'^train$', FaceLabelingView.as_view()),
+    url(r'^train/(?P<img_idx>[0-9]{0,4})/(?P<frm_idx>[0-9]{0,4})$', FaceLabelingView.as_view()),
     url(r'^static/(?P<path>.*)$',views.serve),
 ]
 #if settings.DEBUG:
